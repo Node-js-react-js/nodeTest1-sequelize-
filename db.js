@@ -1,24 +1,41 @@
-const config = require('./config.js');
 const mysql = require('mysql2');
-const Sequelize = require('sequelize');
-module.exports = db = {};
-// create db if it doesn't already exist
-const { host, port, user, password, database } = config.database;
-const pool = mysql.createPool({ host, port, user, password });
-pool.query(`CREATE DATABASE IF NOT EXISTS \`${database}\`;`);
-// connect to db
-const sequelize = new Sequelize(database, user, password, {
-    dialect: 'mysql',
-    pool: {
-        max: config.pool.max,
-        min: config.pool.min,
-        acquire: config.pool.acquire,
-        idle: config.pool.idle
-    }
-}
-);
-db.sequelize = sequelize;
-// init the Employee model and add it to the exported db object
-db.Employee = require('./models/employee');
-// sync all models with database
-sequelize.sync();
+const pool = mysql.createPool({
+    connectionLimit: 10,
+    password: process.env.DB_PASS,
+    user: process.env.DB_USER,
+    database: process.env.MYSQL_DB,
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT
+});
+let db = {};
+db.getUser = (id) =>{
+    return new Promise((resolve, reject)=>{
+        pool.query('SELECT * FROM user WHERE id= ?', [id], (error, user)=>{
+            if(error){
+                return reject(error);
+            }
+            return resolve(user);
+        });
+    });
+};
+db.getUserByEmail = (email) =>{
+    return new Promise((resolve, reject)=>{
+        pool.query('SELECT * FROM user WHERE email = ?', [email], (error, users)=>{
+            if(error){
+                return reject(error);
+            }
+            return resolve(users[0]);
+        });
+    });
+};
+db.insertUser = (firstName, lastName, email, password) =>{
+    return new Promise((resolve, reject)=>{
+        pool.query('INSERT INTO user (first_name, last_name, email, `password`) VALUES (?, ?, ?, ?)', [firstName, lastName, email, password], (error, result)=>{
+            if(error){
+                return reject(error);
+            }
+              return resolve(result.insertId);
+        });
+    });
+};
+module.exports = db;
