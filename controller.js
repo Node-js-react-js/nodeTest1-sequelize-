@@ -1,27 +1,15 @@
 const db = require('./db');
 const Employee = db.Employee;
+const Company = db.Company;
 module.exports = {
-    insertEmployee,
-    updateEmployee,
-    getOneEmployee,
-    getAllEmployees,
-    deleteEmployee
+    getAllCompaniesEmployees,
+    getOneCompanyEmployees
 };
-async function insertEmployee(name, position, email, wage) {
-    await Employee.create({ name, position, email, wage });
+async function getOneCompanyEmployees(id) {
+    const company = await Company.findByPk(id, { include: [Employee] });
+    return company;
 }
-async function updateEmployee(name, position, email, wage, id) {
-    await Employee.update({ name, position, email, wage }, { where: { id: id } });
-}
-async function getOneEmployee(id) {
-    const employee = await Employee.findByPk(id);
-    return employee;
-}
-async function getAllEmployees() {
-    const employees = await Employee.findAll();
-    return employees;
-}
-async function deleteEmployee(id) {
-    const employee = await getOneEmployee(id);
-    await employee.destroy();
+async function getAllCompaniesEmployees() {
+    const companies = await Company.findAll({ include: [Employee] });
+    return companies;
 }
