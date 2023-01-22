@@ -4,7 +4,7 @@ module.exports = {
         "port": 3306,
         "user": "root",
         "password": "mysql123",
-        "database": "sequelize-db"
+        "database": "testdb"
     },
     "pool": {
         "max": 5,

@@ -17,8 +17,14 @@ const sequelize = new Sequelize(database, user, password, {
     }
 }
 );
+db.Sequelize = Sequelize;
 db.sequelize = sequelize;
-// init the Employee model and add it to the exported db object
-db.Employee = require('./models/employee');
+db.tutorials = require("./app/models/tutorial.model")(sequelize, Sequelize);
+db.comments = require("./app/models/comment.model.js")(sequelize, Sequelize);
+db.tutorials.hasMany(db.comments, { as: "comments" });
+db.comments.belongsTo(db.tutorials, {
+    foreignKey: "tutorialId",
+    as: "tutorial",
+});
 // sync all models with database
 sequelize.sync();
