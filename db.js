@@ -19,6 +19,12 @@ const sequelize = new Sequelize(database, user, password, {
 );
 db.sequelize = sequelize;
 // init the Employee model and add it to the exported db object
-db.Employee = require('./models/employee');
+const Employee = require('./models/employee');     
+const Setting = require('./models/setting');
+Employee.hasOne(Setting);
+Setting.belongsTo(Employee);
+db.Employee = Employee;    
+db.Setting = Setting;
 // sync all models with database
-sequelize.sync();
+// sequelize.sync();
+sequelize.sync({force: true})
